@@ -15,23 +15,26 @@ Transform your goals into beautiful visual progress rings that make achieving th
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - npm or yarn
 
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/yourusername/progressify.git
 cd progressify
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Run the development server:
+
 ```bash
 npm run dev
 ```
@@ -74,11 +77,13 @@ progressify/
 ## API Routes
 
 ### Authentication
+
 - `POST /api/auth/register` - Create new user account
 - `POST /api/auth/login` - Sign in existing user
 - `POST /api/auth/reset-password` - Reset user password
 
 ### Goals
+
 - `GET /api/goals` - Get all goals for authenticated user
 - `POST /api/goals` - Create new goal
 - `GET /api/goals/[id]` - Get specific goal
@@ -97,15 +102,19 @@ progressify/
 ## Key Components
 
 ### CircularProgress
+
 Interactive SVG-based circular progress tracker with clickable cells around the perimeter. Each cell represents one step toward your goal.
 
 ### GoalCard
+
 Dashboard cards displaying goal overview with progress bars, completion percentages, and drag handles for reordering.
 
 ### AuthForm
+
 Unified authentication component supporting login, registration, and password reset modes.
 
 ### NewGoalModal
+
 Modal interface for creating new goals with form validation and color selection.
 
 ## Data Storage
@@ -117,7 +126,3 @@ Currently uses in-memory storage for prototyping. For production deployment:
 3. **Data Persistence** - Implement proper data models
 4. **User Sessions** - Add session management
 5. **Data Validation** - Server-side input validation
-
-## Future Enhancements
-
-- 📱 **Mobi
