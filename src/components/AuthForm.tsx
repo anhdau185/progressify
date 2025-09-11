@@ -48,7 +48,7 @@ export default function AuthForm({ mode = "login" }: AuthFormProps) {
       } else {
         toast.error(data.error || "Something went wrong");
       }
-    } catch (error) {
+    } catch {
       toast.error("Network error");
     } finally {
       setLoading(false);
