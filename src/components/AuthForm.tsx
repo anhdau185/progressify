@@ -4,7 +4,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 
 interface AuthFormProps {
-  mode?: "login" | "register" | "reset";
+  mode?: "login" | "register" | "reset-password";
 }
 
 export default function AuthForm({ mode = "login" }: AuthFormProps) {
@@ -18,10 +18,9 @@ export default function AuthForm({ mode = "login" }: AuthFormProps) {
     setLoading(true);
 
     try {
-      const endpoint =
-        mode === "reset" ? "/api/auth/reset-password" : `/api/auth/${mode}`;
+      const endpoint = `/api/auth/${mode}`;
       const body =
-        mode === "reset"
+        mode === "reset-password"
           ? { email, newPassword: password }
           : { email, password };
 
@@ -34,7 +33,7 @@ export default function AuthForm({ mode = "login" }: AuthFormProps) {
       const data = await response.json();
 
       if (response.ok) {
-        if (mode === "reset") {
+        if (mode === "reset-password") {
           toast.success("Password reset successfully");
           router.push("/login");
         } else {
@@ -59,7 +58,7 @@ export default function AuthForm({ mode = "login" }: AuthFormProps) {
     switch (mode) {
       case "register":
         return "Create Account";
-      case "reset":
+      case "reset-password":
         return "Reset Password";
       default:
         return "Sign In";
@@ -71,7 +70,7 @@ export default function AuthForm({ mode = "login" }: AuthFormProps) {
     switch (mode) {
       case "register":
         return "Create Account";
-      case "reset":
+      case "reset-password":
         return "Reset Password";
       default:
         return "Sign In";
@@ -107,7 +106,7 @@ export default function AuthForm({ mode = "login" }: AuthFormProps) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {mode === "reset" ? "New Password" : "Password"}
+              {mode === "reset-password" ? "New Password" : "Password"}
             </label>
             <input
               type="password"
@@ -163,7 +162,7 @@ export default function AuthForm({ mode = "login" }: AuthFormProps) {
             </p>
           )}
 
-          {mode === "reset" && (
+          {mode === "reset-password" && (
             <p className="text-sm text-gray-600">
               Remember your password?{" "}
               <button

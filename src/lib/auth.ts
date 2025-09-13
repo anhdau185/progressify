@@ -31,7 +31,7 @@ const users: User[] = [
   {
     id: "1",
     email: "demo@example.com",
-    password: "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi", // password
+    password: "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi", // default password (without quotes): "password"
     createdAt: new Date().toISOString(),
   },
 ];
