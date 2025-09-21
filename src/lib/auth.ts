@@ -9,9 +9,9 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 // Cookie configuration
 export const AUTH_COOKIE_NAME = "progressify-auth";
-export const COOKIE_OPTIONS = {
+export const AUTH_COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: true,
+  secure: process.env.NODE_ENV === "production",
   sameSite: "strict" as const,
   path: "/",
   maxAge: 3 * 24 * 60 * 60, // 3 days in seconds
@@ -117,7 +117,7 @@ export const authUtils = {
 
 export const cookieUtils = {
   setAuthCookie: (response: NextResponse, token: string): void => {
-    response.cookies.set(AUTH_COOKIE_NAME, token, COOKIE_OPTIONS);
+    response.cookies.set(AUTH_COOKIE_NAME, token, AUTH_COOKIE_OPTIONS);
   },
 
   getAuthToken: async (): Promise<string | undefined> => {
@@ -127,11 +127,11 @@ export const cookieUtils = {
 
   clearAuthCookies: (response: NextResponse): void => {
     response.cookies.set(AUTH_COOKIE_NAME, "", {
-      ...COOKIE_OPTIONS,
+      ...AUTH_COOKIE_OPTIONS,
       maxAge: 0,
     });
     response.cookies.set(CSRF_CONSTANTS.COOKIE_NAME, "", {
-      ...COOKIE_OPTIONS,
+      ...AUTH_COOKIE_OPTIONS,
       httpOnly: false,
       maxAge: 0,
     });

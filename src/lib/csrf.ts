@@ -37,7 +37,7 @@ const CSRF_COOKIE_NAME = "progressify-csrf";
 const CSRF_HEADER_NAME = "x-csrf-token";
 const CSRF_COOKIE_OPTIONS = {
   httpOnly: false, // Must be false so frontend can read it
-  secure: true,
+  secure: process.env.NODE_ENV === "production",
   sameSite: "strict" as const,
   path: "/",
   maxAge: 3 * 24 * 60 * 60, // 3 days in seconds

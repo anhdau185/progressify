@@ -144,6 +144,7 @@ export function withOptionalAuth(handler: ProtectedRouteHandler): RouteHandler {
       return handler(authenticatedRequest);
     } catch (error) {
       console.error("Optional auth middleware error:", error);
+
       // Continue without auth on error
       const authenticatedRequest = request as AuthenticatedRequest;
       return handler(authenticatedRequest);
@@ -259,7 +260,8 @@ function getClientIP(request: NextRequest): string {
     return realIP;
   }
 
-  return "unknown"; // fallback for development
+  // Fallback for development
+  return "unknown";
 }
 
 /**
