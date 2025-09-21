@@ -1,30 +1,21 @@
+import { Goal, JWTPayload, User } from "@/types";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
+import { csrf, CSRF_CONSTANTS } from "./csrf";
 
-const JWT_SECRET =
-  process.env.JWT_SECRET || "your-super-secret-jwt-key-change-in-production";
+const JWT_SECRET = process.env.JWT_SECRET;
 
-interface User {
-  id: string;
-  email: string;
-  password: string;
-  createdAt: string;
-}
-
-interface Goal {
-  id: string;
-  userId: string;
-  title: string;
-  description: string;
-  totalSteps: number;
-  completedSteps: number;
-  color: string;
-  createdAt: string;
-}
-
-interface JWTPayload {
-  userId: string;
-}
+// Cookie configuration
+export const AUTH_COOKIE_NAME = "progressify-auth";
+export const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: true,
+  sameSite: "strict" as const,
+  path: "/",
+  maxAge: 3 * 24 * 60 * 60, // 3 days in seconds
+};
 
 // In a real app, this would be a database
 const users: User[] = [
@@ -72,13 +63,21 @@ export const authUtils = {
   },
 
   generateToken: (userId: string): string => {
-    return jwt.sign({ userId }, JWT_SECRET, { expiresIn: "7d" });
+    if (!JWT_SECRET) {
+      throw new Error("Server misconfigured");
+    }
+
+    return jwt.sign({ userId }, JWT_SECRET, { expiresIn: "3d" });
   },
 
   verifyToken: (token: string): JWTPayload | null => {
+    if (!JWT_SECRET) {
+      throw new Error("Server misconfigured");
+    }
+
     try {
       return jwt.verify(token, JWT_SECRET) as JWTPayload;
-    } catch (error) {
+    } catch {
       return null;
     }
   },
@@ -113,6 +112,64 @@ export const authUtils = {
       return true;
     }
     return false;
+  },
+};
+
+export const cookieUtils = {
+  setAuthCookie: (response: NextResponse, token: string): void => {
+    response.cookies.set(AUTH_COOKIE_NAME, token, COOKIE_OPTIONS);
+  },
+
+  getAuthToken: async (): Promise<string | undefined> => {
+    const cookieStore = await cookies();
+    return cookieStore.get(AUTH_COOKIE_NAME)?.value;
+  },
+
+  clearAuthCookies: (response: NextResponse): void => {
+    response.cookies.set(AUTH_COOKIE_NAME, "", {
+      ...COOKIE_OPTIONS,
+      maxAge: 0,
+    });
+    response.cookies.set(CSRF_CONSTANTS.COOKIE_NAME, "", {
+      ...COOKIE_OPTIONS,
+      httpOnly: false,
+      maxAge: 0,
+    });
+  },
+
+  getCurrentUser: async (): Promise<User | null> => {
+    const token = await cookieUtils.getAuthToken();
+    if (!token) return null;
+
+    const decoded = authUtils.verifyToken(token);
+    if (!decoded) return null;
+
+    return authUtils.getUserById(decoded.userId) || null;
+  },
+};
+
+// Authentication helpers for API routes
+export const authHelpers = {
+  createAuthResponse: (user: User): NextResponse => {
+    const token = authUtils.generateToken(user.id);
+    const csrfToken = csrf.generateToken(user.id);
+
+    const response = NextResponse.json({
+      user: { id: user.id, email: user.email },
+      csrfToken,
+    });
+
+    // Set secure cookies
+    cookieUtils.setAuthCookie(response, token);
+    csrf.setCookie(response, csrfToken);
+
+    return response;
+  },
+
+  createLogoutResponse: (): NextResponse => {
+    const response = NextResponse.json({ message: "Logged out successfully" });
+    cookieUtils.clearAuthCookies(response);
+    return response;
   },
 };
 
@@ -158,5 +215,3 @@ export const goalUtils = {
     return false;
   },
 };
-
-export type { Goal, JWTPayload, User };
